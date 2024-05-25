@@ -1,5 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -7,17 +6,28 @@ import javax.swing.*;
 import java.awt.*;
 
 
+
+
 public class Main {
 
-  public static void main(String[] args) throws FileNotFoundException {
-    ArrayList<Point> points = new ArrayList<>();
-    Scanner scanner = new Scanner(new File("rangepoints.txt"));
-
-    while (scanner.hasNext()) {
-      double x = scanner.nextDouble();
-      double y = scanner.nextDouble();
-      points.add(new Point(x, y));
+    public static ArrayList<Point> readPointsFromFile(String fileName) throws IOException {
+        ArrayList<Point> points = new ArrayList<>();
+        BufferedReader br = new BufferedReader(new FileReader(fileName));
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] coordinates = line.split("\\s+");
+            double x = Double.parseDouble(coordinates[0]);
+            double y = Double.parseDouble(coordinates[1]);
+            points.add(new Point(x, y));
+        }
+        br.close();
+        return points;
     }
+
+  public static void main(String[] args) {
+      try {
+
+    ArrayList<Point> points = readPointsFromFile("rangepoints.txt");
 
     RangeTree rangeTree = new RangeTree(points);
 
@@ -54,5 +64,8 @@ public class Main {
         // Show the frame
         frame.setVisible(true);
     }
-  }
+  } catch (IOException e) {
+        System.err.println("Error reading points from file: " + e.getMessage());
+    }
+}
 }

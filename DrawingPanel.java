@@ -71,35 +71,48 @@ class DrawingPanel extends JPanel {
 	g.fillPolygon(xpoints, ypoints, 3);
     }
 
-
-    private void drawNode(Graphics2D g2d, Node node) {
+    // returns mean value point of the previous hierarchy
+    private Point drawNode(Graphics2D g2d, Node node, Axis axis) {
         if (node == null)
-            return;
+            return null;
 
-        Point point = node.point;
-	g2d.setColor(Color.BLACK);
-	g2d.fillOval(panelX(point.x) - 3, panelY(point.y) - 3, 6, 6);
+	if (node.isLeaf()) {
+	    Point point = node.point;
+	    g2d.setColor(Color.BLACK);
+	    g2d.fillOval(panelX(point.x) - 3, panelY(point.y) - 3, 6, 6);
+	    return point;
+	}
 
+	if (node.sub_tree != null) {
+	    drawNode(g2d, node.sub_tree.root, node.sub_tree.axis);
+	}
 	Node leftNode = node.left;
-	if (leftNode != null) {
-	    Point headpoint = leftNode.point;
-	    g2d.setColor(Color.GREEN);
-	    drawArrowLine(g2d,
-			  panelX(point.x), panelY(point.y),
-			  panelX(headpoint.x), panelY(headpoint.y),
-			  7, 7);
-	    drawNode(g2d, leftNode);
-	}
+	Point leftPoint = drawNode(g2d, leftNode, axis);
 	Node rightNode = node.right;
-	if (rightNode != null) {
-	    Point headpoint = rightNode.point;
-	    g2d.setColor(Color.YELLOW);
-	    drawArrowLine(g2d,
-			  panelX(point.x), panelY(point.y),
-			  panelX(headpoint.x), panelY(headpoint.y),
-			  7, 7);
-	    drawNode(g2d, rightNode);
+	Point rightPoint = drawNode(g2d, rightNode, axis);
+	// should not happen
+	if (leftPoint == null) {
+	    return rightPoint;
 	}
+	// should not happen
+	if (rightPoint == null) {
+	    return leftPoint;
+	}
+	Point centerPoint = new Point((leftPoint.y + rightPoint.y)/2, (leftPoint.y + rightPoint.y)/2);
+	g2d.setColor(axis == Axis.X ? Color.GREEN : Color.YELLOW);
+	if (leftPoint != null) {
+	    drawArrowLine(g2d,
+			  panelX(centerPoint.x), panelY(centerPoint.y),
+			  panelX(leftPoint.x), panelY(leftPoint.y),
+			  7, 7);
+	}
+	if (rightPoint != null) {
+	    drawArrowLine(g2d,
+			  panelX(centerPoint.x), panelY(centerPoint.y),
+			  panelX(rightPoint.x), panelY(rightPoint.y),
+			  7, 7);
+	}
+	return centerPoint;
     }
 
     @Override
@@ -126,7 +139,7 @@ class DrawingPanel extends JPanel {
 	g2d.setStroke(oldStroke);
 
         // Draw points
-	drawNode(g2d, rangeTree.root);
+	drawNode(g2d, rangeTree.root, rangeTree.axis);
 
     }
 }

@@ -7,21 +7,21 @@ import java.util.List;
 
 public class RangeTree {
     public Node root;
-    private Axis by;
+    public Axis axis;
 
     public RangeTree() {
-        this.by = Axis.X;
+        this.axis = Axis.X;
     }
-    public RangeTree(Axis by) {
-        this.by = by;
+    public RangeTree(Axis axis) {
+        this.axis = axis;
     }
 
     public RangeTree(Point[] points) {
-        this.by = Axis.X;
+        this.axis = Axis.X;
 	buildBinaryTree(points);
     }
     public RangeTree(ArrayList<Point> points) {
-        this.by = Axis.X;
+        this.axis = Axis.X;
 	buildBinaryTree(points.toArray(new Point[0]));
     }
 
@@ -33,7 +33,7 @@ public class RangeTree {
 	    this.root = this.sortedList2BinaryTree(points);
 	}
 	else {
-	    Point[] sorted = Sort.sort(points, this.by);
+	    Point[] sorted = Sort.sort(points, this.axis);
 	    this.root = this.sortedList2BinaryTree(sorted);
 	}
     }
@@ -48,7 +48,7 @@ public class RangeTree {
         }
         else if (points.length == 1) {
             Node root = new Node(points[0]);
-	    if (this.by == Axis.X) {
+	    if (this.axis == Axis.X) {
 		root.sub_tree = new RangeTree(Axis.Y);
 		root.sub_tree.setRoot(new Node(points[0]));
 	    }
@@ -56,6 +56,7 @@ public class RangeTree {
         }
         else {
             int med = points.length/2;
+	    // points[med] is naturally left Max
             Point point = points[med];
             Point[] p1 = Arrays.copyOfRange(points, 0, med);
             Point[] p2 = Arrays.copyOfRange(points, med+1, points.length);
@@ -67,7 +68,7 @@ public class RangeTree {
 
             root.left = t1;
             root.right = t2;
-	    if (this.by == Axis.X) {
+	    if (this.axis == Axis.X) {
 		root.sub_tree = new RangeTree(Axis.Y);
 		root.sub_tree.buildBinaryTree(points);
 	    }
@@ -75,15 +76,11 @@ public class RangeTree {
         }
     }
 
-    private boolean is_leaf(Node root) {
-        if (root == null || (root.left == null && root.right == null)) {
-            return true;
-        }
-        return false;
-    }
-
     private Node findMaxNodeX(Node root, BoundingBox range) {
-	while (!(this.is_leaf(root)) && (root.point.x > range.maxX || root.point.x < range.minX)) {
+	if (root == null) {
+	    return root;
+	}
+	while (! (root.isLeaf()) && (root.point.x > range.maxX || root.point.x < range.minX)) {
 	    if (root.point.x >= range.maxX) {
 		root = root.left;
 	    }
@@ -95,7 +92,10 @@ public class RangeTree {
     }
 
     private Node findMaxNodeY(Node root, BoundingBox range) {
-	while (!(this.is_leaf(root)) && (root.point.y > range.maxY || root.point.y < range.minY)) {
+	if (root == null) {
+	    return root;
+	}
+	while (!(root.isLeaf()) && (root.point.y > range.maxY || root.point.y < range.minY)) {
 	    if (root.point.y >= range.maxY) {
 		root = root.left;
 	    }
