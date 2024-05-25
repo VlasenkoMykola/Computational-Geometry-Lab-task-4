@@ -79,6 +79,7 @@ class DrawingPanel extends JPanel {
 	if (node.isLeaf()) {
 	    Point point = node.point;
 	    g2d.setColor(Color.BLACK);
+	    // real point for leaf nodes
 	    g2d.fillOval(panelX(point.x) - 3, panelY(point.y) - 3, 6, 6);
 	    return point;
 	}
@@ -100,6 +101,8 @@ class DrawingPanel extends JPanel {
 	}
 	Point centerPoint = new Point((leftPoint.y + rightPoint.y)/2, (leftPoint.y + rightPoint.y)/2);
 	g2d.setColor(axis == Axis.X ? Color.GREEN : Color.YELLOW);
+	// fictitious point for trunk nodes
+	g2d.fillOval(panelX(centerPoint.x) - 3, panelY(centerPoint.y) - 3, 6, 6);
 	if (leftPoint != null) {
 	    drawArrowLine(g2d,
 			  panelX(centerPoint.x), panelY(centerPoint.y),

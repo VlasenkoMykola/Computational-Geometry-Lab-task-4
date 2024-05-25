@@ -40,7 +40,7 @@ public class Main {
     double maxY = consoleScanner.nextDouble();
     */
     // Example range query
-    double minX = 1.0, minY = 1.0, maxX = 100.0, maxY = 100.0;
+    double minX = 20.0, minY = 20.0, maxX = 50.0, maxY = 50.0;
     BoundingBox range = new BoundingBox(minX, maxX, minY, maxY);
     List<Point> results = rangeTree.rangeQuery(range);
 
